@@ -2,7 +2,7 @@
 
 **Version:** 1.0.10
 
-[![Build Status](https://dev.azure.com/osieng/engineering/_apis/build/status/product-readiness/OCS/CSVtoOCS_DotNet?branchName=master)](https://dev.azure.com/osieng/engineering/_build/latest?definitionId=1393&branchName=master)
+[![Build Status](https://dev.azure.com/osieng/engineering/_apis/build/status/product-readiness/OCS/osisoft.sample-ocs-csv_to_ocs-dotnet?repoName=osisoft%2Fsample-ocs-csv_to_ocs-dotnet&branchName=master)](https://dev.azure.com/osieng/engineering/_build/latest?definitionId=2615&repoName=osisoft%2Fsample-ocs-csv_to_ocs-dotnet&branchName=master)
 
 Developed against DotNet core 3.1.
 

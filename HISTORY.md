@@ -1,6 +1,6 @@
 # Version History
 
-## 1.0.11 / 2021-01-26
+## 1.0.11 / 2021-02-10
 
 - Updated dependencies
 - Migrated to .NET 5.0

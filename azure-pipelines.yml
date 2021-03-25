@@ -1,0 +1,72 @@
+trigger:
+  batch: true
+  branches:
+    include:
+      - main
+
+pr:
+  branches:
+    include:
+      - main
+
+schedules:
+  - cron: '0 0 * * 0'
+    displayName: Weekly build
+    branches:
+      include:
+        - main
+    always: true
+
+resources:
+  repositories:
+    - repository: templates
+      type: github
+      name: osisoft/OSI-Samples
+      endpoint: osisoft/OSI-Samples
+
+variables:
+  - template: '/miscellaneous/build_templates/variables.yml@templates'
+  - name: CredFile
+    value: appsettings.json
+  - name: CredFileLibrary
+    value: product-readiness.csvtoocs_dotnet.json
+  - name: analysisProject
+    value: CSVtoOCS_DotNet
+
+jobs:
+  - job: Tests
+    pool:
+      name: 00-OSIManaged-Containers
+      demands: Agent.OS -equals Windows_NT
+    steps:
+      - template: '/miscellaneous/build_templates/config.yml@templates'
+        parameters:
+          fileOriginal: $(CredFile)
+          fileLibrary: $(CredFileLibrary)
+          filePath: /CSVtoOCS
+
+      - script: npm install chromedriver
+        displayName: 'Install chromedriver'
+
+      - task: DotNetCoreCLI@2
+        displayName: 'Run tests'
+        env:
+          CHROMEWEBDRIVER: $(Build.SourcesDirectory)\node_modules\chromedriver\lib\chromedriver
+        inputs:
+          command: test
+          publishTestResults: true
+          testRunTitle: '$(Agent.JobName) on $(Agent.OS)'
+
+  - job: Analysis
+    pool:
+      name: 00-OSIManaged-Containers
+      demands: Agent.OS -equals Windows_NT
+    steps:
+      - task: DotNetCoreCLI@2
+        displayName: 'Build'
+        inputs:
+          command: build
+
+      - template: '/miscellaneous/build_templates/binskim.yml@templates'
+
+      - template: '/miscellaneous/build_templates/analysis.yml@templates'

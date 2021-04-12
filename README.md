@@ -8,6 +8,9 @@ Developed against DotNet 5.0.
 
 ## About this sample
 
+
+| :loudspeaker: **Notice**: The [PI Adapter for Structured Data Files](https://osisoft.github.io/PI-Adapter-Structured-Data-Files-Docs/content/index.html) can send CSVs (and other files types) to EDS, OCS, and PI.  The released adapter is recommended for use if you need to send .csv data, but this sample is available if you need to build your own solution.|
+
 This sample sends data from a passed in csv file or from the datafile.csv file local to the application to OCS.
 This sample uses the Authentication flow to authenticate against OCS. .  
 By default it will create the type and the streams used in the defauly datafile.csv.

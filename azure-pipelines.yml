@@ -45,7 +45,7 @@ jobs:
           fileLibrary: $(CredFileLibrary)
           filePath: /CSVtoOCS
 
-      - script: npm install chromedriver
+      - script: npm install chromedriver --detect_chromedriver_version
         displayName: 'Install chromedriver'
 
       - task: DotNetCoreCLI@2

@@ -1,6 +1,6 @@
 # CSV to OCS sample
 
-**Version:** 1.0.13
+**Version:** 1.0.14
 
 [![Build Status](https://dev.azure.com/osieng/engineering/_apis/build/status/product-readiness/OCS/osisoft.sample-ocs-csv_to_ocs-dotnet?repoName=osisoft%2Fsample-ocs-csv_to_ocs-dotnet&branchName=main)](https://dev.azure.com/osieng/engineering/_build/latest?definitionId=2615&repoName=osisoft%2Fsample-ocs-csv_to_ocs-dotnet&branchName=main)
 
@@ -8,8 +8,7 @@ Developed against DotNet 5.0.
 
 ## About this sample
 
-
-| :loudspeaker: **Notice**: The [PI Adapter for Structured Data Files](https://osisoft.github.io/PI-Adapter-Structured-Data-Files-Docs/content/index.html) can send CSVs (and other files types) to EDS, OCS, and PI.  The released adapter is recommended for use if you need to send .csv data, but this sample is available if you need to build your own solution.|
+| :loudspeaker: **Notice**: The [PI Adapter for Structured Data Files](https://osisoft.github.io/PI-Adapter-Structured-Data-Files-Docs/content/index.html) can send CSVs (and other files types) to EDS, OCS, and PI. The released adapter is recommended for use if you need to send .csv data, but this sample is available if you need to build your own solution.|
 
 This sample sends data from a passed in csv file or from the datafile.csv file local to the application to OCS.
 This sample uses the Authentication flow to authenticate against OCS. .  

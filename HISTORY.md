@@ -1,9 +1,13 @@
 # Version History
 
-## 1.0.16 / 2021-07-15
+## 1.0.17 / 2021-07-23
 
 - Updated dependencies
 - Minor code changes to accommodate changes in IdentityModel.OidcClient 4.0.0
+
+## 1.0.16 / 2021-07-20
+
+- Cleaned up gitignore
 
 ## 1.0.15 / 2021-06-09
 

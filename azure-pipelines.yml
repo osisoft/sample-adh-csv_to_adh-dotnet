@@ -49,6 +49,11 @@ jobs:
         displayName: 'Install chromedriver'
 
       - task: DotNetCoreCLI@2
+        displayName: 'Nuget restore'
+        inputs:
+          command: restore
+
+      - task: DotNetCoreCLI@2
         displayName: 'Run tests'
         env:
           CHROMEWEBDRIVER: $(Build.SourcesDirectory)\node_modules\chromedriver\lib\chromedriver
@@ -62,6 +67,11 @@ jobs:
       name: 00-OSIManaged-Containers
       demands: Agent.OS -equals Windows_NT
     steps:
+      - task: DotNetCoreCLI@2
+        displayName: 'Nuget restore'
+        inputs:
+          command: restore
+
       - task: DotNetCoreCLI@2
         displayName: 'Build'
         inputs:

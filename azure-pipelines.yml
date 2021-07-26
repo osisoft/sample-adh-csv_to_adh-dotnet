@@ -48,6 +48,9 @@ jobs:
       - script: npm install chromedriver --detect_chromedriver_version
         displayName: 'Install chromedriver'
 
+      - script: dotnet dev-certs https --trust
+        displayName: 'Generate developer certificate'
+
       - task: DotNetCoreCLI@2
         displayName: 'Nuget restore'
         inputs:

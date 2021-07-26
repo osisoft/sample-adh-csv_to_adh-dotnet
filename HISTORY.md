@@ -1,9 +1,10 @@
 # Version History
 
-## 1.0.17 / 2021-07-23
+## 1.0.17 / 2021-07-26
 
 - Updated dependencies
 - Minor code changes to accommodate changes in IdentityModel.OidcClient 4.0.0
+- Standardized code style rules
 
 ## 1.0.16 / 2021-07-20
 

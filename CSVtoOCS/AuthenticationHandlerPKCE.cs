@@ -12,7 +12,7 @@ namespace CSVtoOCS
     public class AuthenticationHandlerPKCE : DelegatingHandler
     {
         private string _accessToken;
-        private DateTime _expiration = DateTime.MinValue;
+        private DateTimeOffset _expiration = DateTime.MinValue;
 
         public AuthenticationHandlerPKCE(string tenantId, string clientId, string resource = "https://dat-b.osisoft.com")
         {

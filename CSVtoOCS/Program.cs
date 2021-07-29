@@ -13,9 +13,9 @@ namespace CSVtoOCS
 {
     public static class Program
     {
-        private const string _stream1ID = "stream1";
-        private const string _stream2ID = "stream2";
-        private const string _typeID = "TemperatureReadings";
+        private const string Stream1ID = "stream1";
+        private const string Stream2ID = "stream2";
+        private const string TypeID = "TemperatureReadings";
 
         private static Exception _toThrow;
         private static List<TemperatureReadingsWithIds> _dataList;
@@ -76,20 +76,20 @@ namespace CSVtoOCS
                 (_configuration as ConfigurationRoot).Dispose();
 
                 // Setup access to OCS
-                AuthenticationHandlerPKCE authenticationHandler = new AuthenticationHandlerPKCE(tenantId, clientId, resource);
+                var authenticationHandler = new AuthenticationHandlerPKCE(tenantId, clientId, resource);
 
-                SdsService sdsService = new SdsService(new Uri(resource), authenticationHandler);
+                var sdsService = new SdsService(new Uri(resource), authenticationHandler);
                 _dataService = sdsService.GetDataService(tenantId, namespaceId);
                 _metaService = sdsService.GetMetadataService(tenantId, namespaceId);
 
                 if (CreateStreams)
                 {
                     SdsType typeToCreate = SdsTypeBuilder.CreateSdsType<TemperatureReadings>();
-                    typeToCreate.Id = _typeID;
+                    typeToCreate.Id = TypeID;
                     Console.WriteLine("Creating Type");
                     await _metaService.GetOrCreateTypeAsync(typeToCreate).ConfigureAwait(false);
-                    var stream1 = new SdsStream { Id = _stream1ID, TypeId = typeToCreate.Id };
-                    var stream2 = new SdsStream { Id = _stream2ID, TypeId = typeToCreate.Id };
+                    var stream1 = new SdsStream { Id = Stream1ID, TypeId = typeToCreate.Id };
+                    var stream2 = new SdsStream { Id = Stream2ID, TypeId = typeToCreate.Id };
                     Console.WriteLine("Creating Stream");
                     stream1 = await _metaService.GetOrCreateStreamAsync(stream1).ConfigureAwait(false);
                     stream2 = await _metaService.GetOrCreateStreamAsync(stream2).ConfigureAwait(false);
@@ -137,15 +137,15 @@ namespace CSVtoOCS
                         Console.WriteLine("Deleting Streams");
 
                         // if we created the types and streams, lets remove those too
-                        await RunInTryCatch(_metaService.DeleteStreamAsync, _stream1ID).ConfigureAwait(false);
-                        await RunInTryCatch(_metaService.DeleteStreamAsync, _stream2ID).ConfigureAwait(false);
+                        await RunInTryCatch(_metaService.DeleteStreamAsync, Stream1ID).ConfigureAwait(false);
+                        await RunInTryCatch(_metaService.DeleteStreamAsync, Stream2ID).ConfigureAwait(false);
                         Console.WriteLine("Deleting Types");
-                        await RunInTryCatch(_metaService.DeleteTypeAsync, _typeID).ConfigureAwait(false);
+                        await RunInTryCatch(_metaService.DeleteTypeAsync, TypeID).ConfigureAwait(false);
 
                         // Check deletes
-                        await RunInTryCatchExpectException(_metaService.GetStreamAsync, _stream1ID).ConfigureAwait(false);
-                        await RunInTryCatchExpectException(_metaService.GetStreamAsync, _stream2ID).ConfigureAwait(false);
-                        await RunInTryCatchExpectException(_metaService.GetTypeAsync, _typeID).ConfigureAwait(false);
+                        await RunInTryCatchExpectException(_metaService.GetStreamAsync, Stream1ID).ConfigureAwait(false);
+                        await RunInTryCatchExpectException(_metaService.GetStreamAsync, Stream2ID).ConfigureAwait(false);
+                        await RunInTryCatchExpectException(_metaService.GetTypeAsync, TypeID).ConfigureAwait(false);
                     }
                 }
             }

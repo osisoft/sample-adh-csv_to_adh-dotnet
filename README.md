@@ -1,6 +1,6 @@
 # CSV to OCS sample
 
-**Version:** 1.0.16
+**Version:** 1.0.17
 
 [![Build Status](https://dev.azure.com/osieng/engineering/_apis/build/status/product-readiness/OCS/osisoft.sample-ocs-csv_to_ocs-dotnet?repoName=osisoft%2Fsample-ocs-csv_to_ocs-dotnet&branchName=main)](https://dev.azure.com/osieng/engineering/_build/latest?definitionId=2615&repoName=osisoft%2Fsample-ocs-csv_to_ocs-dotnet&branchName=main)
 
@@ -32,12 +32,13 @@ Please update the `appsettings.json` file with the appropriate information as sh
 
 ```json
 {
-  "NamespaceId": "REPLACE_WITH_NAMESPACE_ID",
-  "TenantId": "REPLACE_WITH_TENANT_ID",
+  "NamespaceId": "PLACEHOLDER_REPLACE_WITH_NAMESPACE_ID",
+  "TenantId": "PLACEHOLDER_REPLACE_WITH_TENANT_ID",
   "Resource": "https://dat-b.osisoft.com",
-  "ClientId": "REPLACE_WITH_APPLICATION_IDENTIFIER",
-  "ClientKey": "REPLACE_WITH_APPLICATION_SECRET",
-  "ApiVersion": "v1"
+  "ApiVersion": "v1",
+  "ClientId": "PLACEHOLDER_REPLACE_WITH_CLIENT_ID",
+  "Password": "PLACEHOLDER_REPLACE_WITH_PASSWORD",
+  "UserName": "PLACEHOLDER_REPLACE_WITH_USERNAME"
 }
 ```
 

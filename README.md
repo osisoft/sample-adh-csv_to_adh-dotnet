@@ -38,7 +38,7 @@ Please update the `appsettings.json` file with the appropriate information as sh
   "ApiVersion": "v1",
   "ClientId": "PLACEHOLDER_REPLACE_WITH_CLIENT_ID",
   "Password": "PLACEHOLDER_REPLACE_WITH_PASSWORD",
-  "UserName": "PLACEHOLDER_REPLACE_WITH_USERNAME"
+  "Username": "PLACEHOLDER_REPLACE_WITH_USERNAME"
 }
 ```
 

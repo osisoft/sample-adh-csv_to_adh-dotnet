@@ -36,7 +36,7 @@ jobs:
       demands: COMPUTERNAME -equals $(buildAgent)
     variables:
       - name: ClientId
-        value: $(AutorizationCodeClientId)
+        value: $(AuthorizationCodeClientId)
       - name: Username
         value: $(AuthorizationUsername)
       - name: Password
@@ -44,7 +44,7 @@ jobs:
     steps:
       - template: '/miscellaneous/build_templates/appsettings.yml@templates'
         parameters:
-          secrets: 'TenantId, NamespaceId, AutorizationCodeClientId, AuthorizationUsername, AuthorizationPassword'
+          secrets: 'TenantId, NamespaceId, AuthorizationCodeClientId, AuthorizationUsername, AuthorizationPassword'
 
       - script: npm install chromedriver --detect_chromedriver_version
         displayName: 'Install chromedriver'

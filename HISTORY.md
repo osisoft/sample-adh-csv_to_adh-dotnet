@@ -1,9 +1,13 @@
 # Version History
 
-## 1.0.18 / 2021-09-29
+## 1.0.19 / 2021-10-07
 
 - Update pipelines to use Azure Key Vault for secrets
 - Changed ClientID to ClientId and UserName to Username in appsettings.json
+
+## 1.0.18 / 2021-09-07
+
+- Updated dependencies
 
 ## 1.0.17 / 2021-07-26
 

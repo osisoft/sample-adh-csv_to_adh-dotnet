@@ -35,6 +35,8 @@ jobs:
       name: 00-OSIManaged-Test
       demands: COMPUTERNAME -equals $(buildAgent)
     variables:
+      - name: ClientId
+        value: $(AutorizationCodeClientId)
       - name: Username
         value: $(AuthorizationUsername)
       - name: Password
@@ -42,7 +44,7 @@ jobs:
     steps:
       - template: '/miscellaneous/build_templates/appsettings.yml@templates'
         parameters:
-          secrets: 'TenantId, NamespaceId, ClientId, ClientSecret, AuthorizationUsername, AuthorizationPassword'
+          secrets: 'TenantId, NamespaceId, AutorizationCodeClientId, AuthorizationUsername, AuthorizationPassword'
 
       - script: npm install chromedriver --detect_chromedriver_version
         displayName: 'Install chromedriver'

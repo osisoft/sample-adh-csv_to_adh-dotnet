@@ -61,7 +61,7 @@ namespace CSVtoOCS
                 var tenantId = _configuration["TenantId"];
                 var namespaceId = _configuration["NamespaceId"];
                 var resource = _configuration["Resource"];
-                var clientId = _configuration["ClientID"];
+                var clientId = _configuration["ClientId"];
 
                 if (!test)
                 {
@@ -70,7 +70,7 @@ namespace CSVtoOCS
                 else
                 {
                     SystemBrowser.Password = _configuration["Password"];
-                    SystemBrowser.UserName = _configuration["UserName"];
+                    SystemBrowser.UserName = _configuration["Username"];
                 }
 
                 (_configuration as ConfigurationRoot).Dispose();

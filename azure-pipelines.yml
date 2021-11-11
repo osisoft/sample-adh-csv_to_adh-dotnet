@@ -32,8 +32,8 @@ variables:
 jobs:
   - job: Tests
     pool:
-      name: 00-OSIManaged-Containers
-      demands: Agent.OS -equals Windows_NT
+      name: 00-OSIManaged-Test
+      demands: COMPUTERNAME -equals $(buildAgent)
     variables:
       - name: ClientId
         value: $(AuthorizationCodeClientId)
@@ -48,10 +48,6 @@ jobs:
 
       - script: npm install chromedriver --detect_chromedriver_version
         displayName: 'Install chromedriver'
-        
-      - script: |
-          dotnet dev-certs https
-        displayName: 'Generate a developer certificate'
 
       - task: DotNetCoreCLI@2
         displayName: 'Nuget restore'
@@ -66,10 +62,6 @@ jobs:
           command: test
           publishTestResults: true
           testRunTitle: '$(Agent.JobName) on $(Agent.OS)'
-          
-      - script: |
-          dotnet dev-certs https --clean
-        displayName: 'Remove generated developer certificate'
 
   - job: Analysis
     pool:

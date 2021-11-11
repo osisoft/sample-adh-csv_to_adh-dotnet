@@ -1,5 +1,9 @@
 # Version History
 
+## 1.0.21 / 2021-11-12
+
+- Updated dependencies
+
 ## 1.0.20 / 2021-11-11
 
 - Changed agent used in pipeline

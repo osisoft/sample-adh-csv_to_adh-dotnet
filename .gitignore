@@ -437,7 +437,6 @@ $RECYCLE.BIN/
 ##
 .vscode/*
 
-
 # Credential Config Files
 product-readiness.*
 appsettings.json

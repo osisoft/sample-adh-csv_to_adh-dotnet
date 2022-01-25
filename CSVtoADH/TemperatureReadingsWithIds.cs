@@ -1,4 +1,4 @@
-﻿namespace CSVtoOCS
+﻿namespace CSVtoADH
 {
     public class TemperatureReadingsWithIds : TemperatureReadings
     {

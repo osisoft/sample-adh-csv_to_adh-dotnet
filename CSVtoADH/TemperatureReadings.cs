@@ -1,7 +1,7 @@
 ﻿using System;
 using OSIsoft.Data;
 
-namespace CSVtoOCS
+namespace CSVtoADH
 {
     public class TemperatureReadings
     {

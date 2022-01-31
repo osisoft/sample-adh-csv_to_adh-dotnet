@@ -13,6 +13,7 @@
     </PackageReference>
     <PackageReference Include="IdentityModel.OidcClient" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
     <PackageReference Include="OSIsoft.OCSClients" Version="4.0.5-prerelease-20211025.1" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
       <PrivateAssets>all</PrivateAssets>

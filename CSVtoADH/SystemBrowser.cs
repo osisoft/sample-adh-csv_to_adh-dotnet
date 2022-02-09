@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using IdentityModel.OidcClient.Browser;
 
-namespace CSVtoOCS
+namespace CSVtoADH
 {
     public class SystemBrowser : IBrowser
     {

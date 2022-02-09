@@ -4,7 +4,7 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CSVtoOCS
+namespace CSVtoADH
 {
     /// <summary>
     /// DelegatingHandler to assist with authenticating with Identity Server.
@@ -14,11 +14,11 @@ namespace CSVtoOCS
         private string _accessToken;
         private DateTimeOffset _expiration = DateTime.MinValue;
 
-        public AuthenticationHandlerPKCE(string tenantId, string clientId, string resource = "https://dat-b.osisoft.com")
+        public AuthenticationHandlerPKCE(string tenantId, string clientId, string resource = "https://uswe.datahub.connect.aveva.com")
         {
             TenantId = tenantId;
             ClientId = clientId;
-            AuthorizationCode.OcsAddress = resource;
+            AuthorizationCode.AdhAddress = resource;
             AuthorizationCode.RedirectHost = "https://127.0.0.1";
             AuthorizationCode.RedirectPort = 54567;
             AuthorizationCode.RedirectPath = "signin-oidc";

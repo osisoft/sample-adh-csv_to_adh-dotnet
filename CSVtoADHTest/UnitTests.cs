@@ -1,4 +1,4 @@
-﻿namespace CSVtoOCSTest
+﻿namespace CSVtoADHTest
 {
     using Xunit;
 
@@ -11,10 +11,10 @@
         /// Simple E2E test.
         /// </summary>
         [Fact]
-        public void CSVtoOCSTest()
+        public void CSVtoADHTest()
         {
-            CSVtoOCS.SystemBrowser.OpenBrowser = new OpenTestBrowser();
-            Assert.True(CSVtoOCS.Program.MainAsync(true).Result);
+            CSVtoADH.SystemBrowser.OpenBrowser = new OpenTestBrowser();
+            Assert.True(CSVtoADH.Program.MainAsync(true).Result);
         }
     }
 }

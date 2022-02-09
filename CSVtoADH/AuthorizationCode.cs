@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using IdentityModel.Client;
 using IdentityModel.OidcClient;
 
-namespace CSVtoOCS
+namespace CSVtoADH
 {
     public static class AuthorizationCode
     {
@@ -15,7 +15,7 @@ namespace CSVtoOCS
         private const string IdentityResourceSuffix = "/identity";
         private static OidcClient _oidcClient;
 
-        public static string OcsAddress { get; set; }
+        public static string AdhAddress { get; set; }
 
         public static string RedirectHost { get; set; }
 
@@ -23,9 +23,9 @@ namespace CSVtoOCS
 
         public static string RedirectPath { get; set; }
 
-        private static string OcsIdentityUrl
+        private static string AdhIdentityUrl
         {
-            get { return OcsAddress + IdentityResourceSuffix; }
+            get { return AdhAddress + IdentityResourceSuffix; }
         }
 
         public static (string, DateTimeOffset) GetAuthorizationCodeFlowAccessToken(string clientId, string tenantId)
@@ -66,7 +66,7 @@ namespace CSVtoOCS
             // Create a discovery request
             using var discoveryDocumentRequest = new DiscoveryDocumentRequest
             {
-                Address = OcsIdentityUrl,
+                Address = AdhIdentityUrl,
                 Policy = new DiscoveryPolicy
                 {
                     ValidateIssuerName = false,
@@ -102,7 +102,7 @@ namespace CSVtoOCS
                 // Create the OICD client Options
                 var options = new OidcClientOptions
                 {
-                    Authority = OcsIdentityUrl,
+                    Authority = AdhIdentityUrl,
                     ClientId = clientId,
                     RedirectUri = redirectUri,
                     Scope = scope,

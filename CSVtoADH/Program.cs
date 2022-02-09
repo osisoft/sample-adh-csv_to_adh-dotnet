@@ -9,7 +9,7 @@ using Microsoft.Extensions.Configuration;
 using OSIsoft.Data;
 using OSIsoft.Data.Reflection;
 
-namespace CSVtoOCS
+namespace CSVtoADH
 {
     public static class Program
     {
@@ -75,7 +75,7 @@ namespace CSVtoOCS
 
                 (_configuration as ConfigurationRoot).Dispose();
 
-                // Setup access to OCS
+                // Setup access to ADH
                 var authenticationHandler = new AuthenticationHandlerPKCE(tenantId, clientId, resource);
 
                 var sdsService = new SdsService(new Uri(resource), authenticationHandler);

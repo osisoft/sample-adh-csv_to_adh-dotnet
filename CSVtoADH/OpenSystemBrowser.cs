@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace CSVtoOCS
+namespace CSVtoADH
 {
     public class OpenSystemBrowser : IOpenBrowser
     {

@@ -36,8 +36,8 @@ variables:
 jobs:
   - job: Tests
     pool:
-      name: 00-OSIManaged-Test
-      demands: COMPUTERNAME -equals $(buildAgent)
+      name: 00-OSIManaged-Containers
+      demands: Agent.OS -equals Windows_NT
     variables:
       - name: ClientId
         value: $(AuthorizationCodeClientId)
@@ -49,6 +49,10 @@ jobs:
       - template: '/miscellaneous/build_templates/appsettings.yml@templates'
         parameters:
           secrets: 'TenantId, NamespaceId, AuthorizationCodeClientId, AuthorizationUsername, AuthorizationPassword, Resource'
+          
+      - script: |
+          dotnet dev-certs https
+        displayName: 'Generate a developer certificate'
 
       - script: npm install chromedriver --detect_chromedriver_version
         displayName: 'Install chromedriver'
@@ -66,6 +70,10 @@ jobs:
           command: test
           publishTestResults: true
           testRunTitle: '$(Agent.JobName) on $(Agent.OS)'
+      
+      - script: |
+          dotnet dev-certs https --clean
+        displayName: 'Remove generated developer certificate'
 
   - template: '/miscellaneous/build_templates/code-analysis.yml@templates'
     parameters:

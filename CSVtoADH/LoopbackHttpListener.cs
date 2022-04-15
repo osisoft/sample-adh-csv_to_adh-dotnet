@@ -12,7 +12,7 @@ namespace CSVtoADH
     {
         private const int DefaultTimeout = 60 * 5; // 5 mins (in seconds)
         private readonly IWebHost _host;
-        private readonly TaskCompletionSource<string> _source = new TaskCompletionSource<string>();
+        private readonly TaskCompletionSource<string> _source = new ();
 
         public LoopbackHttpListener(int port, string path = null)
         {
@@ -76,8 +76,8 @@ namespace CSVtoADH
                     }
                     else
                     {
-                        using var sr = new StreamReader(ctx.Request.Body, Encoding.UTF8);
-                        var body = await sr.ReadToEndAsync().ConfigureAwait(false);
+                        using StreamReader sr = new (ctx.Request.Body, Encoding.UTF8);
+                        string body = await sr.ReadToEndAsync().ConfigureAwait(false);
                         SetResult(body, ctx);
                     }
                 }

@@ -42,8 +42,8 @@ namespace CSVtoADH
             try
             {
                 // Import data in.  Use csv reader and custom class to make it simple
-                using (var reader = new StreamReader(fileLocation))
-                using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+                using (StreamReader reader = new (fileLocation))
+                using (CsvReader csv = new (reader, CultureInfo.InvariantCulture))
                 {
                     _dataList = csv.GetRecords<TemperatureReadingsWithIds>().ToList();
                 }
@@ -58,10 +58,10 @@ namespace CSVtoADH
                     .AddJsonFile("appsettings.test.json", optional: true)
                     .Build();
 
-                var tenantId = _configuration["TenantId"];
-                var namespaceId = _configuration["NamespaceId"];
-                var resource = _configuration["Resource"];
-                var clientId = _configuration["ClientId"];
+                string tenantId = _configuration["TenantId"];
+                string namespaceId = _configuration["NamespaceId"];
+                string resource = _configuration["Resource"];
+                string clientId = _configuration["ClientId"];
 
                 if (!test)
                 {
@@ -76,9 +76,9 @@ namespace CSVtoADH
                 (_configuration as ConfigurationRoot).Dispose();
 
                 // Setup access to ADH
-                var authenticationHandler = new AuthenticationHandlerPKCE(tenantId, clientId, resource);
+                AuthenticationHandlerPKCE authenticationHandler = new (tenantId, clientId, resource);
 
-                var sdsService = new SdsService(new Uri(resource), authenticationHandler);
+                SdsService sdsService = new (new Uri(resource), authenticationHandler);
                 _dataService = sdsService.GetDataService(tenantId, namespaceId);
                 _metaService = sdsService.GetMetadataService(tenantId, namespaceId);
 
@@ -88,8 +88,8 @@ namespace CSVtoADH
                     typeToCreate.Id = TypeID;
                     Console.WriteLine("Creating Type");
                     await _metaService.GetOrCreateTypeAsync(typeToCreate).ConfigureAwait(false);
-                    var stream1 = new SdsStream { Id = Stream1ID, TypeId = typeToCreate.Id };
-                    var stream2 = new SdsStream { Id = Stream2ID, TypeId = typeToCreate.Id };
+                    SdsStream stream1 = new () { Id = Stream1ID, TypeId = typeToCreate.Id };
+                    SdsStream stream2 = new () { Id = Stream2ID, TypeId = typeToCreate.Id };
                     Console.WriteLine("Creating Stream");
                     stream1 = await _metaService.GetOrCreateStreamAsync(stream1).ConfigureAwait(false);
                     stream2 = await _metaService.GetOrCreateStreamAsync(stream2).ConfigureAwait(false);
@@ -101,7 +101,7 @@ namespace CSVtoADH
                 foreach (string streamId in _streamsIdsToSendTo)
                 {
                     // Get all of the data for this stream in a list
-                    var valueToSend = _dataList.Where(dataEntry => dataEntry.StreamId == streamId) // gets only appropriate data for stream
+                    List<TemperatureReadings> valueToSend = _dataList.Where(dataEntry => dataEntry.StreamId == streamId) // gets only appropriate data for stream
                                               .Select(dataEntry => new TemperatureReadings(dataEntry)) // transforms it to the right data
                                               .ToList(); // needed in IList format for insertValues
                     await _dataService.InsertValuesAsync(streamId, valueToSend).ConfigureAwait(false);
@@ -199,7 +199,7 @@ namespace CSVtoADH
             {
                 try
                 {
-                    var lastVal = await _dataService.GetLastValueAsync<TemperatureReadings>(streamId).ConfigureAwait(false);
+                    TemperatureReadings lastVal = await _dataService.GetLastValueAsync<TemperatureReadings>(streamId).ConfigureAwait(false);
                     if (lastVal == null && _toThrow == null)
                     {
                         throw new Exception($"Value for {streamId} was not found");
@@ -221,7 +221,7 @@ namespace CSVtoADH
             {
                 try
                 {
-                    var lastVal = await _dataService.GetLastValueAsync<TemperatureReadings>(streamId).ConfigureAwait(false);
+                    TemperatureReadings lastVal = await _dataService.GetLastValueAsync<TemperatureReadings>(streamId).ConfigureAwait(false);
                     if (lastVal != null && _toThrow == null)
                     {
                         throw new Exception($"Value for {streamId} was found");
@@ -244,7 +244,7 @@ namespace CSVtoADH
             {
                 try
                 {
-                    var timeStampToDelete = _dataList.Select(o => o.Timestamp);
+                    IEnumerable<DateTime> timeStampToDelete = _dataList.Select(o => o.Timestamp);
                     await _dataService.RemoveValuesAsync(streamId, timeStampToDelete).ConfigureAwait(false);
                 }
                 catch (Exception ex)

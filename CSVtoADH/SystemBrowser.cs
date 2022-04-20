@@ -38,12 +38,12 @@ namespace CSVtoADH
                 throw new ArgumentException("Options cannot be null.", nameof(options));
             }
 
-            using var listener = new LoopbackHttpListener(Port, _path);
+            using LoopbackHttpListener listener = new (Port, _path);
             OpenBrowser.OpenBrowser(options.StartUrl, UserName, Password);
 
             try
             {
-                var result = await listener.WaitForCallbackAsync().ConfigureAwait(false);
+                string result = await listener.WaitForCallbackAsync().ConfigureAwait(false);
                 if (string.IsNullOrWhiteSpace(result))
                 {
                     return new BrowserResult { ResultType = BrowserResultType.UnknownError, Error = "Empty response." };
@@ -59,9 +59,9 @@ namespace CSVtoADH
 
         private static int GetRandomUnusedPort()
         {
-            var listener = new TcpListener(IPAddress.Loopback, 0);
+            TcpListener listener = new (IPAddress.Loopback, 0);
             listener.Start();
-            var port = ((IPEndPoint)listener.LocalEndpoint).Port;
+            int port = ((IPEndPoint)listener.LocalEndpoint).Port;
             listener.Stop();
             return port;
         }

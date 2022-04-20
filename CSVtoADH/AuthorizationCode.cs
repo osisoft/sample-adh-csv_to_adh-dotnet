@@ -45,7 +45,7 @@ namespace CSVtoADH
                 }
 
                 Console.WriteLine("Prompting for login via a browser...");
-                var scope = "openid ocsapi";
+                string scope = "openid ocsapi";
                 loginResult = SignIn(clientId, scope, tenantId).Result;
             }
             while (loginResult.IsError);
@@ -61,10 +61,10 @@ namespace CSVtoADH
         public static async Task<ProviderInformation> GetProviderInformation()
         {
             // Discover endpoints from metadata.
-            using var client = new HttpClient();
+            using HttpClient client = new ();
 
             // Create a discovery request
-            using var discoveryDocumentRequest = new DiscoveryDocumentRequest
+            using DiscoveryDocumentRequest discoveryDocumentRequest = new ()
             {
                 Address = AdhIdentityUrl,
                 Policy = new DiscoveryPolicy
@@ -73,7 +73,7 @@ namespace CSVtoADH
                 },
             };
 
-            var discoveryResponse =
+            DiscoveryDocumentResponse discoveryResponse =
                 await client.GetDiscoveryDocumentAsync(discoveryDocumentRequest).ConfigureAwait(false);
 
             return discoveryResponse.IsError
@@ -95,12 +95,12 @@ namespace CSVtoADH
         {
             // create a redirect URI using an available port on the loopback address.
             // requires the OP to allow random ports on 127.0.0.1 - otherwise set a static port
-            var browser = new SystemBrowser(RedirectPort);
-            var redirectUri = $"{RedirectHost}:{browser.Port}/{RedirectPath}";
+            SystemBrowser browser = new (RedirectPort);
+            string redirectUri = $"{RedirectHost}:{browser.Port}/{RedirectPath}";
             try
             {
                 // Create the OICD client Options
-                var options = new OidcClientOptions
+                OidcClientOptions options = new ()
                 {
                     Authority = AdhIdentityUrl,
                     ClientId = clientId,
@@ -118,7 +118,7 @@ namespace CSVtoADH
                 };
 
                 _oidcClient = new OidcClient(options);
-                var loginRequest = new LoginRequest
+                LoginRequest loginRequest = new ()
                 {
                     FrontChannelExtraParameters = new Parameters(new Dictionary<string, string> { { "acr_values", $"tenant:{tenantId}" } }),
                 };

@@ -49,6 +49,12 @@ jobs:
       - template: '/miscellaneous/build_templates/appsettings.yml@templates'
         parameters:
           secrets: 'TenantId, NamespaceId, AuthorizationCodeClientId, AuthorizationUsername, AuthorizationPassword, Resource'
+
+      - task: UseDotNet@2
+        displayName: 'Install dotnet 6'
+        inputs:
+          packageType: 'sdk'
+          version: '6.x'
           
       - script: |
           dotnet dev-certs https
@@ -78,6 +84,12 @@ jobs:
   - template: '/miscellaneous/build_templates/code-analysis.yml@templates'
     parameters:
       buildSteps:
+        - task: UseDotNet@2
+          displayName: 'Install dotnet 6'
+          inputs:
+            packageType: 'sdk'
+            version: '6.x'
+
         - task: DotNetCoreCLI@2
           displayName: 'Nuget restore'
           inputs:

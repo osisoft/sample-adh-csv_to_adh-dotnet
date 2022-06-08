@@ -1,5 +1,6 @@
 ﻿namespace CSVtoADHTest
 {
+    using System.Threading.Tasks;
     using Xunit;
 
     /// <summary>
@@ -11,10 +12,11 @@
         /// Simple E2E test.
         /// </summary>
         [Fact]
-        public void CSVtoADHTest()
+        public async Task CSVtoADHTest()
         {
             CSVtoADH.SystemBrowser.OpenBrowser = new OpenTestBrowser();
-            Assert.True(CSVtoADH.Program.MainAsync(true).Result);
+
+            Assert.True(await CSVtoADH.Program.RunAsync(test: true).ConfigureAwait(false));
         }
     }
 }

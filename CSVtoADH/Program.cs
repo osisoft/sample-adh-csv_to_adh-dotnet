@@ -13,9 +13,9 @@ namespace CSVtoADH
 {
     public static class Program
     {
-        private const string Stream1ID = "CSVtoADHStream_1";
-        private const string Stream2ID = "CSVtoADHStream_2";
-        private const string TypeID = "TemperatureReadings";
+        private const string Stream1Id = "CSVtoADHStream_1";
+        private const string Stream2Id = "CSVtoADHStream_2";
+        private const string TypeId = "TemperatureReadings";
 
         private static bool _successful;
         private static List<string> _errors = new List<string>();
@@ -90,14 +90,19 @@ namespace CSVtoADH
                 {
                     Console.WriteLine("Creating Type");
                     SdsType temperatureReadingsType = SdsTypeBuilder.CreateSdsType<TemperatureReadings>();
-                    temperatureReadingsType.Id = TypeID;
+                    temperatureReadingsType.Id = TypeId;
                     temperatureReadingsType = await _metaService.GetOrCreateTypeAsync(temperatureReadingsType).ConfigureAwait(false);
 
                     Console.WriteLine("Creating Streams");
                     foreach (string streamId in _streamsIdsToSendTo)
                     {
-                        SdsStream stream = new () { Id = streamId, TypeId = temperatureReadingsType.Id };
-                        _ = await _metaService.GetOrCreateStreamAsync(stream).ConfigureAwait(false);
+                        _ = await _metaService.GetOrCreateStreamAsync(
+                                new SdsStream() 
+                                { 
+                                    Id = streamId, 
+                                    TypeId = temperatureReadingsType.Id,
+                                })
+                            .ConfigureAwait(false);
                     }
                 }
 
@@ -119,9 +124,8 @@ namespace CSVtoADH
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"{nameof(Main)} Error: {ex.Message}");
                 _successful = false;
-                _errors.Add(ex.Message);
+                _errors.Add($"{nameof(Main)} Error: {ex.Message}");
             }
             finally
             {
@@ -130,16 +134,16 @@ namespace CSVtoADH
                     if (CreateStreams)
                     {
                         Console.WriteLine("Deleting Streams");
-                        await RunSilently(_metaService.DeleteStreamAsync, Stream1ID).ConfigureAwait(false);
-                        await RunSilently(_metaService.DeleteStreamAsync, Stream2ID).ConfigureAwait(false);
+                        await RunSilently(_metaService.DeleteStreamAsync, Stream1Id).ConfigureAwait(false);
+                        await RunSilently(_metaService.DeleteStreamAsync, Stream2Id).ConfigureAwait(false);
 
                         Console.WriteLine("Deleting Types");
-                        await RunSilently(_metaService.DeleteTypeAsync, TypeID).ConfigureAwait(false);
+                        await RunSilently(_metaService.DeleteTypeAsync, TypeId).ConfigureAwait(false);
 
                         // Verify successful deletes by ensuring GET calls throw
-                        await EnsureThrowsAsync(_metaService.GetStreamAsync, Stream1ID).ConfigureAwait(false);
-                        await EnsureThrowsAsync(_metaService.GetStreamAsync, Stream2ID).ConfigureAwait(false);
-                        await EnsureThrowsAsync(_metaService.GetTypeAsync, TypeID).ConfigureAwait(false);
+                        await EnsureThrowsAsync(_metaService.GetStreamAsync, Stream1Id).ConfigureAwait(false);
+                        await EnsureThrowsAsync(_metaService.GetStreamAsync, Stream2Id).ConfigureAwait(false);
+                        await EnsureThrowsAsync(_metaService.GetTypeAsync, TypeId).ConfigureAwait(false);
                     }
                     else
                     {
@@ -157,7 +161,7 @@ namespace CSVtoADH
             else
             {
                 string errors = string.Empty;
-                _errors.ForEach(e => errors += e + " ");
+                _errors.ForEach(e => errors += e + Environment.NewLine);
 
                 throw new Exception($"Encountered Error(s): {errors}");
             }
@@ -193,7 +197,6 @@ namespace CSVtoADH
             {
                 await toRun(arg).ConfigureAwait(false);
 
-                Console.WriteLine($"{nameof(EnsureThrowsAsync)} Error: Expected {toRun.Method.Name} with value {arg} to throw an exception");
                 _successful = false;
                 _errors.Add($"{nameof(EnsureThrowsAsync)} Error: Expected {toRun.Method.Name} with value {arg} to throw an exception");
             }
@@ -213,7 +216,6 @@ namespace CSVtoADH
                 TemperatureReadings lastVal = await _dataService.GetLastValueAsync<TemperatureReadings>(streamId).ConfigureAwait(false);
                 if (lastVal == null)
                 {
-                    Console.WriteLine($"{nameof(EnsureValuesInsertedAsync)} Error: Value for {streamId} was not found");
                     _successful = false;
                     _errors.Add($"{nameof(EnsureValuesInsertedAsync)} Error: Value for {streamId} was not found");
                 }
@@ -241,7 +243,6 @@ namespace CSVtoADH
                         IEnumerable<TemperatureReadings> remainingValues = await _dataService.GetValuesAsync<TemperatureReadings>(streamId, indicesToDelete).ConfigureAwait(false);
                         if (remainingValues.Any())
                         {
-                            Console.WriteLine($"{nameof(DeleteValuesAsync)} Error: Stream with Id {streamId} still contains values for provided indices.");
                             _successful = false;
                             _errors.Add($"{nameof(DeleteValuesAsync)} Error: Stream with Id {streamId} still contains values for provided indices.");
                         }
@@ -249,7 +250,6 @@ namespace CSVtoADH
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"{nameof(DeleteValuesAsync)} Error: Deleting Stream with Id {streamId} failed with the message: " + ex.Message);
                     _successful = false;
                     _errors.Add($"{nameof(DeleteValuesAsync)} Error: Deleting Stream with Id {streamId} failed with the message: " + ex.Message);
                 }

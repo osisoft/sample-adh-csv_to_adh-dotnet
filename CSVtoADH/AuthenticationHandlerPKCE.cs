@@ -54,8 +54,8 @@ namespace CSVtoADH
         {
             // MinValue will be converted to UTC, which for time zones ahead of UTC will result in a value less than MinValue.
             // Adding this offset to make sure the conversion works for all time zones.
-            var utcOffset = TimeZoneInfo.Local.BaseUtcOffset;
-            return DateTime.MinValue + utcOffset;
+            TimeSpan utcOffset = TimeZoneInfo.Local.BaseUtcOffset;
+            return DateTime.MinValue + utcOffset.Duration();
         }
     }
 }

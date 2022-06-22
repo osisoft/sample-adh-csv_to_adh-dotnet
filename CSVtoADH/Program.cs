@@ -13,11 +13,12 @@ namespace CSVtoADH
 {
     public static class Program
     {
-        private const string Stream1ID = "stream1";
-        private const string Stream2ID = "stream2";
-        private const string TypeID = "TemperatureReadings";
+        private const string Stream1Id = "CSVtoADHStream_1";
+        private const string Stream2Id = "CSVtoADHStream_2";
+        private const string TypeId = "TemperatureReadings";
 
-        private static Exception _toThrow;
+        private static bool _successful;
+        private static List<string> _errors = new List<string>();
         private static List<TemperatureReadingsWithIds> _dataList;
         private static IEnumerable<string> _streamsIdsToSendTo;
         private static ISdsDataService _dataService;
@@ -34,22 +35,24 @@ namespace CSVtoADH
                 fileLocationIn = args[0];
             }
 
-            MainAsync(fileLocation: fileLocationIn).GetAwaiter().GetResult();
+            RunAsync(fileLocation: fileLocationIn).GetAwaiter().GetResult();
         }
 
-        public static async Task<bool> MainAsync(bool test = false, string fileLocation = "datafile.csv")
+        public static async Task<bool> RunAsync(bool test = false, string fileLocation = "datafile.csv")
         {
+            _successful = true;
+
             try
             {
-                // Import data in.  Use csv reader and custom class to make it simple
+                // Import CSV data using the TemperatureReadingsWithIds class as format
                 using (StreamReader reader = new (fileLocation))
                 using (CsvReader csv = new (reader, CultureInfo.InvariantCulture))
                 {
                     _dataList = csv.GetRecords<TemperatureReadingsWithIds>().ToList();
                 }
 
-                // Use Linq to get the distinct StreamIds we need.  
-                _streamsIdsToSendTo = _dataList.Select(dataeEntry => dataeEntry.StreamId).Distinct();
+                // Get Stream Ids to use when sending data
+                _streamsIdsToSendTo = _dataList.Select(dataEntry => dataEntry.StreamId).Distinct();
 
                 // Get Configuration information about where this is sending to
                 _configuration = new ConfigurationBuilder()
@@ -75,185 +78,180 @@ namespace CSVtoADH
 
                 (_configuration as ConfigurationRoot).Dispose();
 
-                // Setup access to ADH
+                // Setup authentication to Data Hub
                 AuthenticationHandlerPKCE authenticationHandler = new (tenantId, clientId, resource);
 
+                // Services used to communicate with the Sequential Data Store
                 SdsService sdsService = new (new Uri(resource), authenticationHandler);
                 _dataService = sdsService.GetDataService(tenantId, namespaceId);
                 _metaService = sdsService.GetMetadataService(tenantId, namespaceId);
 
                 if (CreateStreams)
                 {
-                    SdsType typeToCreate = SdsTypeBuilder.CreateSdsType<TemperatureReadings>();
-                    typeToCreate.Id = TypeID;
                     Console.WriteLine("Creating Type");
-                    await _metaService.GetOrCreateTypeAsync(typeToCreate).ConfigureAwait(false);
-                    SdsStream stream1 = new () { Id = Stream1ID, TypeId = typeToCreate.Id };
-                    SdsStream stream2 = new () { Id = Stream2ID, TypeId = typeToCreate.Id };
-                    Console.WriteLine("Creating Stream");
-                    stream1 = await _metaService.GetOrCreateStreamAsync(stream1).ConfigureAwait(false);
-                    stream2 = await _metaService.GetOrCreateStreamAsync(stream2).ConfigureAwait(false);
+                    SdsType temperatureReadingsType = SdsTypeBuilder.CreateSdsType<TemperatureReadings>();
+                    temperatureReadingsType.Id = TypeId;
+                    temperatureReadingsType = await _metaService.GetOrCreateTypeAsync(temperatureReadingsType).ConfigureAwait(false);
+
+                    Console.WriteLine("Creating Streams");
+                    foreach (string streamId in _streamsIdsToSendTo)
+                    {
+                        _ = await _metaService.GetOrCreateStreamAsync(
+                                new SdsStream() 
+                                { 
+                                    Id = streamId, 
+                                    TypeId = temperatureReadingsType.Id,
+                                })
+                            .ConfigureAwait(false);
+                    }
                 }
 
                 Console.WriteLine("Sending Data");
-
-                // Loop over each stream to send to and send the data as one call.
                 foreach (string streamId in _streamsIdsToSendTo)
                 {
-                    // Get all of the data for this stream in a list
-                    List<TemperatureReadings> valueToSend = _dataList.Where(dataEntry => dataEntry.StreamId == streamId) // gets only appropriate data for stream
-                                              .Select(dataEntry => new TemperatureReadings(dataEntry)) // transforms it to the right data
-                                              .ToList(); // needed in IList format for insertValues
+                    // Get a List of values for this Stream formatted as TemperatureReadings
+                    List<TemperatureReadings> valueToSend = _dataList.Where(dataEntry => dataEntry.StreamId == streamId)
+                                              .Select(dataEntry => new TemperatureReadings(dataEntry))
+                                              .ToList();
+
                     await _dataService.InsertValuesAsync(streamId, valueToSend).ConfigureAwait(false);
                 }
 
                 if (test)
                 {
-                    // Checks to make sure values are written
-                    await CheckValuesWrittenASync().ConfigureAwait(false);
+                    await EnsureValuesInsertedAsync().ConfigureAwait(false);
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
-                _toThrow = ex;
+                _successful = false;
+                _errors.Add($"{nameof(Main)} Error: {ex.Message}");
             }
             finally
             {
                 if (test)
                 {
-                    if (!CreateStreams)
+                    if (CreateStreams)
                     {
-                        // if we just created the data lets just remove that
-                        // Do Delete
-                        Console.WriteLine("Deleting Data");
-                        await DeleteValuesAsync().ConfigureAwait(false);
+                        Console.WriteLine("Deleting Streams");
+                        await RunSilently(_metaService.DeleteStreamAsync, Stream1Id).ConfigureAwait(false);
+                        await RunSilently(_metaService.DeleteStreamAsync, Stream2Id).ConfigureAwait(false);
 
-                        // Do Delete check
-                        await CheckDeletesValuesAsync().ConfigureAwait(false);
+                        Console.WriteLine("Deleting Types");
+                        await RunSilently(_metaService.DeleteTypeAsync, TypeId).ConfigureAwait(false);
+
+                        // Verify successful deletes by ensuring GET calls throw
+                        await EnsureThrowsAsync(_metaService.GetStreamAsync, Stream1Id).ConfigureAwait(false);
+                        await EnsureThrowsAsync(_metaService.GetStreamAsync, Stream2Id).ConfigureAwait(false);
+                        await EnsureThrowsAsync(_metaService.GetTypeAsync, TypeId).ConfigureAwait(false);
                     }
                     else
                     {
-                        Console.WriteLine("Deleting Streams");
-
-                        // if we created the types and streams, lets remove those too
-                        await RunInTryCatch(_metaService.DeleteStreamAsync, Stream1ID).ConfigureAwait(false);
-                        await RunInTryCatch(_metaService.DeleteStreamAsync, Stream2ID).ConfigureAwait(false);
-                        Console.WriteLine("Deleting Types");
-                        await RunInTryCatch(_metaService.DeleteTypeAsync, TypeID).ConfigureAwait(false);
-
-                        // Check deletes
-                        await RunInTryCatchExpectException(_metaService.GetStreamAsync, Stream1ID).ConfigureAwait(false);
-                        await RunInTryCatchExpectException(_metaService.GetStreamAsync, Stream2ID).ConfigureAwait(false);
-                        await RunInTryCatchExpectException(_metaService.GetTypeAsync, TypeID).ConfigureAwait(false);
+                        // Delete Data
+                        Console.WriteLine("Deleting Data");
+                        await DeleteValuesAsync().ConfigureAwait(false);
                     }
                 }
             }
 
-            if (_toThrow != null)
-                throw _toThrow;
+            if (_successful)
+            {
+                return true;
+            }
+            else
+            {
+                string errors = string.Empty;
+                _errors.ForEach(e => errors += e + Environment.NewLine);
 
-            return true;
+                throw new Exception($"Encountered Error(s): {errors}");
+            }
         }
 
         /// <summary>
-        /// Use this to run a method that you don't want to stop the program if there is an exception
+        /// Run <paramref name="toRun"/> with argument <paramref name="arg"/> and swallow any exception.
         /// </summary>
-        /// <param name="methodToRun">The method to run.</param>
-        /// <param name="value">The value to put into the method to run</param>
-        private static async Task RunInTryCatch(Func<string, Task> methodToRun, string value)
+        /// <param name="toRun">The method to run.</param>
+        /// <param name="arg">The method argument/</param>
+        private static async Task RunSilently(Func<string, Task> toRun, string arg)
         {
             try
             {
-                await methodToRun(value).ConfigureAwait(false);
+                await toRun(arg).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Got error in {methodToRun.Method.Name} with value {value} but continued on:" + ex.Message);
-                if (_toThrow == null)
+                Console.WriteLine($"{nameof(RunSilently)} Error: Running {toRun.Method.Name} with value {arg}:" + ex.Message);
+                
+                // Swallowing exception
+            }
+        }
+
+        /// <summary>
+        /// Run <paramref name="toRun"/> with argument <paramref name="arg"/> ensuring an exception to be thrown that will in turn be swallowed.
+        /// </summary>
+        /// <param name="toRun">The method to run.</param>
+        /// <param name="arg">The method argument/</param>
+        private static async Task EnsureThrowsAsync(Func<string, Task> toRun, string arg)
+        {
+            try
+            {
+                await toRun(arg).ConfigureAwait(false);
+
+                _successful = false;
+                _errors.Add($"{nameof(EnsureThrowsAsync)} Error: Expected {toRun.Method.Name} with value {arg} to throw an exception");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"{nameof(EnsureThrowsAsync)}: Swallowed exception {ex.Message} when running {toRun.Method.Name} with value {arg}");
+            }
+        }
+
+        /// <summary>
+        /// Ensure that all streams have data inserted.
+        /// </summary>
+        private static async Task EnsureValuesInsertedAsync()
+        {
+            foreach (string streamId in _streamsIdsToSendTo)
+            {
+                TemperatureReadings lastVal = await _dataService.GetLastValueAsync<TemperatureReadings>(streamId).ConfigureAwait(false);
+                if (lastVal == null)
                 {
-                    _toThrow = ex;
+                    _successful = false;
+                    _errors.Add($"{nameof(EnsureValuesInsertedAsync)} Error: Value for {streamId} was not found");
                 }
             }
         }
 
         /// <summary>
-        /// Use this to run a method that you don't want to stop the program if there is an exception, and you expect an exception
+        /// Delete values inserted on all streams.
         /// </summary>
-        /// <param name="methodToRun">The method to run.</param>
-        /// <param name="value">The value to put into the method to run</param>
-        private static async Task RunInTryCatchExpectException(Func<string, Task> methodToRun, string value)
-        {
-            try
-            {
-                await methodToRun(value).ConfigureAwait(false);
-
-                Console.WriteLine($"Got error.  Expected {methodToRun.Method.Name} with value {value} to throw an error but it did not:");
-            }
-            catch { }
-        }
-
-        private static async Task CheckValuesWrittenASync()
-        {
-            foreach (string streamId in _streamsIdsToSendTo)
-            {
-                try
-                {
-                    TemperatureReadings lastVal = await _dataService.GetLastValueAsync<TemperatureReadings>(streamId).ConfigureAwait(false);
-                    if (lastVal == null && _toThrow == null)
-                    {
-                        throw new Exception($"Value for {streamId} was not found");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    if (_toThrow == null)
-                    {
-                        _toThrow = ex;
-                    }
-                }
-            }
-        }
-
-        private static async Task CheckDeletesValuesAsync()
-        {
-            foreach (string streamId in _streamsIdsToSendTo)
-            {
-                try
-                {
-                    TemperatureReadings lastVal = await _dataService.GetLastValueAsync<TemperatureReadings>(streamId).ConfigureAwait(false);
-                    if (lastVal != null && _toThrow == null)
-                    {
-                        throw new Exception($"Value for {streamId} was found");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Got error in seeing that removed values are gone in {streamId} but continued on:" + ex.Message);
-                    if (_toThrow == null)
-                    {
-                        _toThrow = ex;
-                    }
-                }
-            }
-        }
-
         private static async Task DeleteValuesAsync()
         {
             foreach (string streamId in _streamsIdsToSendTo)
             {
                 try
                 {
-                    IEnumerable<DateTime> timeStampToDelete = _dataList.Select(o => o.Timestamp);
-                    await _dataService.RemoveValuesAsync(streamId, timeStampToDelete).ConfigureAwait(false);
+                    IEnumerable<string> indicesToDelete = _dataList.Select(reading => reading.Timestamp.ToString(CultureInfo.InvariantCulture));
+                    
+                    // If any values are present
+                    IEnumerable<TemperatureReadings> currentValues = await _dataService.GetValuesAsync<TemperatureReadings>(streamId, indicesToDelete).ConfigureAwait(false);
+                    if (currentValues.Any())
+                    {
+                        await _dataService.RemoveValuesAsync(streamId, indicesToDelete).ConfigureAwait(false);
+
+                        // Read back values, ensuring that they were deleted
+                        IEnumerable<TemperatureReadings> remainingValues = await _dataService.GetValuesAsync<TemperatureReadings>(streamId, indicesToDelete).ConfigureAwait(false);
+                        if (remainingValues.Any())
+                        {
+                            _successful = false;
+                            _errors.Add($"{nameof(DeleteValuesAsync)} Error: Stream with Id {streamId} still contains values for provided indices.");
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Got error in removing values in {streamId} but continued on:" + ex.Message);
-                    if (_toThrow == null)
-                    {
-                        _toThrow = ex;
-                    }
+                    _successful = false;
+                    _errors.Add($"{nameof(DeleteValuesAsync)} Error: Deleting Stream with Id {streamId} failed with the message: " + ex.Message);
                 }
             }
         }

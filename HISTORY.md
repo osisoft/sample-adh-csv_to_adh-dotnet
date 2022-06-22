@@ -1,5 +1,9 @@
 # Version History
 
+## 1.4.2 / 2022-06-10
+
+- Fix time zone conversion bug when ahead of UTC + Refactoring
+
 ## 1.4.1 / 2022-05-10
 
 - Updated dependencies

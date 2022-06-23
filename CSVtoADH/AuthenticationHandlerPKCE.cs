@@ -7,15 +7,17 @@ using System.Threading.Tasks;
 namespace CSVtoADH
 {
     /// <summary>
-    /// DelegatingHandler to assist with authenticating with Identity Server.
+    /// Handle authentication with Identity Server.
     /// </summary>
     public class AuthenticationHandlerPKCE : DelegatingHandler
     {
         private string _accessToken;
-        private DateTimeOffset _expiration = DateTime.MinValue;
+        private DateTimeOffset _expiration;
 
         public AuthenticationHandlerPKCE(string tenantId, string clientId, string resource = "https://uswe.datahub.connect.aveva.com")
         {
+            _expiration = GetTimeZoneAgnosticOffset();
+
             TenantId = tenantId;
             ClientId = clientId;
             AuthorizationCode.AdhAddress = resource;
@@ -46,6 +48,14 @@ namespace CSVtoADH
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
 
             return base.SendAsync(request, cancellationToken);
+        }
+
+        private static DateTimeOffset GetTimeZoneAgnosticOffset()
+        {
+            // MinValue will be converted to UTC, which for time zones ahead of UTC will result in a value less than MinValue.
+            // Adding this offset to make sure the conversion works for all time zones.
+            TimeSpan utcOffset = TimeZoneInfo.Local.BaseUtcOffset;
+            return DateTime.MinValue + utcOffset.Duration();
         }
     }
 }

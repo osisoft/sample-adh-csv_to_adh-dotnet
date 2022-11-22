@@ -1,5 +1,9 @@
 # Version History
 
+## 1.4.6 / 2022-11-22
+
+- Resolve pipeline failure
+
 ## 1.4.5 / 2022-08-17
 
 - Automate dependabot approval and automerge

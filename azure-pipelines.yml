@@ -109,4 +109,5 @@ jobs:
             command: build
 
         - template: '/miscellaneous/build_templates/binskim.yml@templates'
-          deleteBinSkim: 'selenium-manager.exe'
+          parameters:
+            deleteBinSkim: 'selenium-manager.exe'

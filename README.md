@@ -26,7 +26,7 @@ In this example we assume that you have the dotnet core CLI.
 
 - Register an Authorization Code client in ADH and ensure that the registered client in ADH contains `https://127.0.0.1:54567/signin-oidc` in the list of RedirectUris. For details on this please see this [video](https://www.youtube.com/watch?v=97QJjUKa6Pk)
 - Configure the sample using the file [appsettings.placeholder.json](CSVtoADH/appsettings.placeholder.json). Before editing, rename this file to `appsettings.json`. This repository's `.gitignore` rules should prevent the file from ever being checked in to any fork or branch, to ensure credentials are not compromised.
-- Replace the placeholders in the `appsettings.json` file with your Tenant Id, NamespaceId, and Client Id.
+- Replace the placeholders in the `appsettings.json` file with your Tenant Id, NamespaceId, and Client Id. The username and password fields are used for testing and can be left as is.
 
 ### Configure constants for connecting and authentication
 

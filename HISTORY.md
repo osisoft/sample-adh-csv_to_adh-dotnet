@@ -1,5 +1,9 @@
 # Version History
 
+## 1.4.7 / 2023-04-11
+
+- Update login flow
+
 ## 1.4.6 / 2022-11-22
 
 - Resolve pipeline failure

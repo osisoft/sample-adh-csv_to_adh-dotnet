@@ -1,8 +1,5 @@
 # CSV to ADH sample
 
-| :loudspeaker: **Notice**: Samples have been updated to reflect that they work on AVEVA Data Hub. The samples also work on OSIsoft Cloud Services unless otherwise noted. |
-| -----------------------------------------------------------------------------------------------|  
-
 **Version:** 1.4.7
 
 [![Build Status](https://dev.azure.com/osieng/engineering/_apis/build/status/product-readiness/ADH/aveva.sample-adh-csv_to_adh-dotnet?branchName=main)](https://dev.azure.com/osieng/engineering/_build/latest?definitionId=2615&branchName=main)

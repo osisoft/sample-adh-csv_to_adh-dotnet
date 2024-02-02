@@ -1,6 +1,6 @@
 # CSV to ADH sample
 
-**Version:** 1.4.7
+**Version:** 1.4.8
 
 [![Build Status](https://dev.azure.com/osieng/engineering/_apis/build/status/product-readiness/ADH/aveva.sample-adh-csv_to_adh-dotnet?branchName=main)](https://dev.azure.com/osieng/engineering/_build/latest?definitionId=2615&branchName=main)
 

@@ -1,4 +1,4 @@
-# CSV to ADH sample
+# CSV to Cds sample
 
 **Version:** 1.4.8
 
@@ -8,12 +8,12 @@ Developed against DotNet 6.0.
 
 ## About this sample
 
-| :loudspeaker: **Notice**: The [PI Adapter for Structured Data Files](https://osisoft.github.io/PI-Adapter-Structured-Data-Files-Docs/content/index.html) can send CSVs (and other files types) to EDS, ADH, and PI. The released adapter is recommended for use if you need to send .csv data, but this sample is available if you need to build your own solution.|
+| :loudspeaker: **Notice**: The [PI Adapter for Structured Data Files](https://osisoft.github.io/PI-Adapter-Structured-Data-Files-Docs/content/index.html) can send CSVs (and other files types) to EDS, Cds, and PI. The released adapter is recommended for use if you need to send .csv data, but this sample is available if you need to build your own solution.|
 
-This sample sends data from a passed in csv file or from the datafile.csv file local to the application to ADH.
-This sample uses the Authentication flow to authenticate against ADH.
+This sample sends data from a passed in csv file or from the datafile.csv file local to the application to Cds.
+This sample uses the Authentication flow to authenticate against Cds.
 By default it will create the type and the streams used in the default datafile.csv.
-When testing it will check the values to make sure they are saved on ADH and it will delete whatever it added to the system at the end.
+When testing it will check the values to make sure they are saved on Cds and it will delete whatever it added to the system at the end.
 
 ## Running this sample
 
@@ -21,7 +21,7 @@ In this example we assume that you have the dotnet core CLI.
 
 ### Prerequisites
 
-- Register an Authorization Code client in ADH and ensure that the registered client in ADH contains `https://127.0.0.1:54567/signin-oidc` in the list of RedirectUris. For details on this please see this [video](https://www.youtube.com/watch?v=97QJjUKa6Pk)
+- Register an Authorization Code client in Cds and ensure that the registered client in Cds contains `https://127.0.0.1:54567/signin-oidc` in the list of RedirectUris. For details on this please see this [video](https://www.youtube.com/watch?v=97QJjUKa6Pk)
 - Configure the sample using the file [appsettings.placeholder.json](CSVtoADH/appsettings.placeholder.json). Before editing, rename this file to `appsettings.json`. This repository's `.gitignore` rules should prevent the file from ever being checked in to any fork or branch, to ensure credentials are not compromised.
 - Replace the placeholders in the `appsettings.json` file with your Tenant Id, NamespaceId, and Client Id. The username and password fields are used for testing and can be left as is.
 
@@ -57,5 +57,5 @@ dotnet test
 
 ---
 
-For the main ADH samples page [ReadMe](https://github.com/osisoft/OSI-Samples-OCS)  
-For the main AVEVA samples page [ReadMe](https://github.com/osisoft/OSI-Samples)
+For the main Cds samples page [ReadMe](https://github.com/AVEVA/AVEVA-Samples-CloudOperations)  
+For the main AVEVA samples page [ReadMe](https://github.com/AVEVA/AVEVA-Samples)
